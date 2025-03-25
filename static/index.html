@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBA Shot Locations Evolution</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+      color: #222;
+      font-weight: 500;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin-bottom: 20px;
+      font-style: normal;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .visualization-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .visualization-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 940 / 440;
+      background-color: #f8f8f8;
+      border-radius: 3px;
+    }
+
+    .court-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0.9;
+    }
+
+    .shot-chart {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .year-label {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: normal;
+      font-size: 12px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #e8e8e8;
+      border-radius: 4px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      color: #555;
+    }
+
+    .min-shots-filter {
+      width: 80px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 15px;
+      gap: 5px;
+    }
+
+    .legend-scale {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .legend-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #1a9641;
+    }
+
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 300px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .tooltip {
+      position: absolute;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      border-radius: 3px;
+      pointer-events: none;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      line-height: 1.4;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 11px;
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>NBA Shot Locations Evolution</h1>
+    <div class="subtitle">1997/98 – 2019/20 • Shot frequency and field goal percentage by location</div>
+
+    <div class="controls">
+      <div class="filter-group">
+        <span class="filter-label">Minimum shots from location:</span>
+        <input type="number" class="min-shots-filter" value="50" min="1" step="1">
+      </div>
+    </div>
+
+    <div class="visualization-grid" id="visualization-grid">
+      <!-- Visualizations will be added here by JavaScript -->
+    </div>
+
+    <div class="legend">
+      <div class="legend-scale">
+        <div class="legend-dots">
+          <div class="legend-dot" style="opacity: 0.2"></div>
+          <div class="legend-dot" style="opacity: 0.4"></div>
+          <div class="legend-dot" style="opacity: 0.6"></div>
+          <div class="legend-dot" style="opacity: 0.8"></div>
+          <div class="legend-dot" style="opacity: 1.0"></div>
+        </div>
+        <span>Field Goal %</span>
+      </div>
+      <div class="legend-labels">
+        <span>30%</span>
+        <span>40%</span>
+        <span>50%</span>
+        <span>60%</span>
+        <span>70%</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      Source: NBA API via data.world @sports/etsunday • Design inspired by Ryan Soares
+    </div>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    // Configuration
+    const config = {
+      width: 940,
+      height: 440,
+      dotRadius: 2.5,
+      dotColor: '#1a9641', // Green similar to original
+      minShots: 50
+    };
+
+    // Every other year from 1997-98 to 2019-20
+    const years = [
+      '1997-98', '1999-00', '2001-02', '2003-04',
+      '2005-06', '2007-08', '2009-10', '2011-12',
+      '2013-14', '2015-16', '2017-18', '2019-20'
+    ];
+
+    // State
+    let allData = {};
+    let locationStats = {}; // Stores FG% by location across all years
+    let minShotsFilter = config.minShots;
+
+    // Coordinate transformation to match court image
+    function transformCoordinates(x, y) {
+      const scaledX = (x + 250) * (config.width / 500);
+      const scaledY = config.height - (y + 50) * (config.height / 550);
+      return [scaledX, scaledY];
+    }
+
+    // Calculate location statistics across all data
+    function calculateLocationStats(data) {
+      const stats = {};
+
+      data.forEach(d => {
+        const key = `${d.x},${d.y}`;
+        if (!stats[key]) {
+          stats[key] = { made: 0, total: 0 };
+        }
+        stats[key].made += d.made;
+        stats[key].total += 1;
+      });
+
+      // Convert to FG%
+      Object.keys(stats).forEach(key => {
+        stats[key].fgPercent = stats[key].made / stats[key].total;
+      });
+
+      return stats;
+    }
+
+    // Load data
+    async function loadData() {
+      try {
+        const response = await fetch('/static/nba_shot_locs_1997_2020.csv');
+        const csvData = await response.text();
+        const data = d3.csvParse(csvData, d => {
+          // Extract season from Game Date (format: YYYY-MM-DD or similar)
+          const dateStr = d['Game Date'];
+          const dateParts = dateStr.split('-');
+          const year = dateParts[0];
+          let seasonSuffix;
+
+          if (year === '1999') {
+            seasonSuffix = '00';
+          } else {
+            seasonSuffix = year.slice(-2);
+          }
+
+          const season = `${year}-${seasonSuffix}`;
+
+          // Transform coordinates to match court image
+          const [x, y] = transformCoordinates(+d['X Location'], +d['Y Location']);
+
+          return {
+            x: x,
+            y: y,
+            made: +d['Shot Made Flag'],
+            season: season,
+            type: d['Shot Type']
+          };
+        });
+
+        // Calculate global location statistics
+        locationStats = calculateLocationStats(data);
+
+        // Group data by season
+        allData = d3.group(data, d => d.season);
+
+        // Initialize visualizations
+        initVisualizations();
+
+        // Set up filter control
+        d3.select('.min-shots-filter')
+          .on('change', function () {
+            minShotsFilter = +this.value;
+            updateAllVisualizations();
+          });
+
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+
+    // Initialize all visualizations
+    function initVisualizations() {
+      const grid = d3.select('#visualization-grid');
+
+      // Create a visualization for each year
+      years.forEach(year => {
+        const container = grid.append('div')
+          .attr('class', 'visualization-container');
+
+        container.append('img')
+          .attr('class', 'court-img')
+          .attr('src', '/static/nba_court.jpg')
+          .attr('alt', 'NBA Court');
+
+        container.append('svg')
+          .attr('class', 'shot-chart')
+          .attr('viewBox', `0 0 ${config.width} ${config.height}`)
+          .attr('preserveAspectRatio', 'xMidYMid meet');
+
+        container.append('div')
+          .attr('class', 'year-label')
+          .text(year.replace('-', '/'));
+
+        updateVisualization(year, container);
+      });
+    }
+
+    // Update all visualizations
+    function updateAllVisualizations() {
+      years.forEach(year => {
+        const container = d3.select(`.visualization-container:nth-child(${years.indexOf(year) + 1})`);
+        updateVisualization(year, container);
+      });
+    }
+
+    // Update visualization for a specific year
+    function updateVisualization(year, container) {
+      const svg = container.select('.shot-chart');
+      const tooltip = container.select('.tooltip').node() ?
+        container.select('.tooltip') :
+        container.append('div').attr('class', 'tooltip');
+
+      // Filter data for current season (all shot types)
+      const seasonData = allData.get(year) || [];
+
+      // Group shots by location
+      const locationGroups = d3.rollup(
+        seasonData,
+        v => ({
+          count: v.length,
+          made: d3.sum(v, d => d.made),
+          fgPercent: d3.sum(v, d => d.made) / v.length
+        }),
+        d => `${d.x},${d.y}`
+      );
+
+      // Convert to array and filter by minimum shots
+      const locations = Array.from(locationGroups.entries())
+        .map(([key, value]) => {
+          const [x, y] = key.split(',').map(Number);
+          return {
+            x, y,
+            count: value.count,
+            fgPercent: value.fgPercent,
+            globalFgPercent: locationStats[key]?.fgPercent || 0.5 // Default to 50% if no global data
+          };
+        })
+        .filter(d => d.count >= minShotsFilter);
+
+      // Bind data to dots
+      const dots = svg.selectAll('.shot-dot')
+        .data(locations, d => `${d.x},${d.y}`);
+
+      // Remove old dots
+      dots.exit().remove();
+
+      // Add new dots
+      const newDots = dots.enter()
+        .append('circle')
+        .attr('class', 'shot-dot')
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y)
+        .attr('r', config.dotRadius)
+        .attr('fill', config.dotColor)
+        .style('opacity', d => {
+          // Scale opacity based on global FG% (30% = 0.2, 70% = 1.0)
+          const fg = d.globalFgPercent;
+          return d3.scaleLinear()
+            .domain([0.3, 0.7])
+            .range([0.2, 1])(fg);
+        })
+        .on('mouseover', function (event, d) {
+          tooltip.transition()
+            .duration(200)
+            .style('opacity', 0.9);
+          tooltip.html(`
+                        <strong>Location:</strong> ${getZoneDescription(d.x, d.y)}<br>
+                        <strong>Shots:</strong> ${d.count}<br>
+                        <strong>FG% (Season):</strong> ${(d.fgPercent * 100).toFixed(1)}%<br>
+                        <strong>FG% (League Avg):</strong> ${(d.globalFgPercent * 100).toFixed(1)}%
+                    `)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function () {
+          tooltip.transition()
+            .duration(200)
+            .style('opacity', 0);
+        });
+
+      // Update existing dots
+      dots.merge(newDots)
+        .transition()
+        .duration(300)
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y)
+        .style('opacity', d => {
+          const fg = d.globalFgPercent;
+          return d3.scaleLinear()
+            .domain([0.3, 0.7])
+            .range([0.2, 1])(fg);
+        });
+    }
+
+    // Helper function to get zone description
+    function getZoneDescription(x, y) {
+      const courtX = (x / (config.width / 500)) - 250;
+      const courtY = 500 - (y / (config.height / 550)) - 50;
+
+      if (courtX > 20 && courtY < 15) return "Right Corner 3";
+      if (courtX < -20 && courtY < 15) return "Left Corner 3";
+      if (Math.abs(courtX) > 20 && courtY < 30) return "Side 3";
+      if (Math.abs(courtX) < 20 && courtY < 30) return "Above the Break 3";
+      if (courtY > 30 && Math.abs(courtX) < 12) return "Paint";
+      if (courtY > 30 && Math.abs(courtX) < 20) return "Mid-Range";
+      return "Other";
+    }
+
+    // Start the visualization
+    loadData();
+  </script>
+</body>
+
+</html>

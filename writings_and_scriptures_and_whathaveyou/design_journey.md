@@ -1,0 +1,37 @@
+## Data Cleaning
+- Removed unnecessary columns: `"Game ID"`, `"Game Event"`, `"Player ID"`, `"Team ID"`, `"game_event_id"`, `"home_team"`, `"away_team"` (not relevant to shot data)  
+- Converted `"Game Date"` from YYYYMMDD to MM-DD-YYYY (improves readability)  
+- Combined `"Minutes Remaining"` and `"Seconds Remaining"` into `"Time Remaining"` formatted as MM:SS  
+- Split `"Player Name"` into `"player_first"` and `"player_last"`  
+- Converted full team names to abbreviations (e.g., `"Los Angeles Lakers"` → `"LAL"`) while preserving historical teams  
+- Renamed `"season_type"` to `"playoffs"` and mapped `"Regular Season"` → `0`, `"Playoffs"` → `1`  
+- Standardized `"shot_type"`: `"2PT Field Goal"` → `2`, `"3PT Field Goal"` → `3`  
+- Abbreviated `"action_type"`:  
+  - `"Jump Shot"` → `"JS"`  
+  - `"Layup Shot"` → `"LS"`  
+  - `"Driving Layup Shot"` → `"DLS"`  
+  - `"Slam Dunk Shot"` → `"SDS"`  
+  - `"Dunk Shot"` → `"DS"`  
+  - `"Tip Shot"` → `"TS"`  
+  - `"Running Jump Shot"` → `"RJS"`  
+  - `"Driving Dunk Shot"` → `"DDS"`  
+- Abbreviated `"shot_zone_basic"`:  
+  - `"Mid-Range"` → `"MR"`  
+  - `"Restricted Area"` → `"RA"`  
+  - `"In The Paint (Non-RA)"` → `"ITP"`  
+  - `"Above the Break 3"` → `"AB3"`  
+  - `"Left Corner 3"` → `"LC3"`  
+  - `"Right Corner 3"` → `"RC3"`  
+  - `"Back Court Shot"` → `"BCS"`  
+- Abbreviated `"shot_zone_area"`:  
+  - `"Left Side(L)"` → `"L"`  
+  - `"Right Side(R)"` → `"R"`  
+  - `"Center(C)"` → `"C"`  
+  - `"Left Side Center(LC)"` → `"LC"`  
+  - `"Right Side Center(RC)"` → `"RC"`  
+  - `"Back Court(BC)"` → `"BC"`  
+- Abbreviated `"shot_zone_range"`:  
+  - `"Less Than 8 ft."` → `"<8"`  
+  - `"8-16 ft."` → `"8-16"`  
+  - `"16-24 ft."` → `"16-24"`  
+  - `"24+ ft."` → `"24+"`  
