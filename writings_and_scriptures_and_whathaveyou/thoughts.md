@@ -1,4 +1,6 @@
 ## Todo
+### X, Y Mapping:
+- Re work it for svg
 ### Data Groupings
 - By Season
 - Team

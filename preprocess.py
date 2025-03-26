@@ -70,6 +70,7 @@ TEAM_ABBREVIATIONS = {
     "New Jersey Nets": "NJN",  # Became Brooklyn Nets in 2012
     "Charlotte Bobcats": "CHA",  # Renamed to Hornets in 2014
     "Vancouver Grizzlies": "VAN",  # Became Memphis Grizzlies in 2001
+    "New Orleans Hornets": "NOH",
 }
 
 def preprocess_nba_data(input_file, output_file):
@@ -104,7 +105,10 @@ def clean_shot_data(file_path, output_path):
     action_type_map = {
         'Jump Shot': 'JS', 'Layup Shot': 'LS', 'Driving Layup Shot': 'DLS',
         'Slam Dunk Shot': 'SDS', 'Dunk Shot': 'DS', 'Tip Shot': 'TS',
-        'Running Jump Shot': 'RJS', 'Driving Dunk Shot': 'DDS'
+        'Running Jump Shot': 'RJS', 'Driving Dunk Shot': 'DDS',
+        'Turnaround Jump Shot': 'TAJS', 'Hook Shot': 'HS',
+        'Turnaround Hook Shot': 'TAHS', 'Jump Bank Shot': 'JBS',
+        'Fadeaway Jump Shot': 'FJS', 'Reverse Layup Shot': 'RLS'
     }
     df['action_type'] = df['action_type'].replace(action_type_map)
 
@@ -120,7 +124,7 @@ def clean_shot_data(file_path, output_path):
     shot_zone_area_map = {
         'Left Side(L)': 'L', 'Right Side(R)': 'R', 'Center(C)': 'C',
         'Left Side Center(LC)': 'LC', 'Right Side Center(RC)': 'RC',
-        'Back Court(BC)': 'BC'
+        'Back Court(BC)': 'BC', 'Back Court': 'BC'
     }
     df['shot_zone_area'] = df['shot_zone_area'].replace(shot_zone_area_map)
 
@@ -135,7 +139,18 @@ def clean_shot_data(file_path, output_path):
     df.to_csv(output_path, index=False)
     print(f"Cleaned data saved to {output_path}")
 
+def rmm(file_path, output_path):
+    # Load the dataset
+    df = pd.read_csv(file_path)
+
+    # df = df.drop(columns=['action_type'])
+    # df = df[~((df['shot_zone_basic'] == 'Back Court') | (df['shot_zone_range'] == 'Back Court Shot'))]
+
+    df.to_csv(output_path, index=False)
+    print(f"Cleaned data saved to {output_path}")
+
 # Example usage
 input_file = "static/nba_shot_locs_1997_2020.csv"  # Change to your actual file path
 output_file = "static/nba_shot_locs_1997_2020.csv"
-clean_shot_data(input_file, output_file)
+# clean_shot_data(input_file, output_file)
+rmm(input_file, output_file)
