@@ -8,46 +8,32 @@
 - **Update**: Link to dataset -> [Data World](https://data.world/sportsvizsunday/june-2020-nba-shots-1997-2019/workspace/file?filename=NBA+Shot+Locations+1997+-+2020.csv)
 
 ## Field Definitions
-- Game ID – Unique id assigned to every game
+team_name – TEXT, Shooting player's team
 
-- Game Event ID - Unique id assigned to every event within a game
+period – INT, Game period (1-4)
 
-- Player ID - Unique id assigned to each player
+shot_type – INT, 2PT or 3PT shot
 
-- Player Name - Shooting Players full name
+shot_zone_basic – TEXT, General shot location
 
-- Team ID - Unique id assigned to each team
+shot_zone_area – TEXT, Court area of shot
 
-- Team Name - The team of the player taking the shot
+shot_zone_range – TEXT, Distance category
 
-- Period - The period of the game (out of four); each period is 12 minutes
+shot_distance – INT, Exact shot distance (ft)
 
-- Minutes Remaining - minutes remaining in period (out of 12)
+x_location – INT, X coordinate of shot (-250,250) but -250 is the most right and 250 is the most left
 
-- Seconds Remaining - seconds remaining in period-minute combination (out of 60)
+y_location – INT, Y coordinate of shot (-50 furthest down, 420 highest up)
 
-- Action Type - Type of shot (ex. Jump Shot, Layup, Hookshot, Dunk, etc)
+shot_made_flag – INT, Shot success (1=Made, 0=Missed)
 
-- Shot Type - Either 2pt or 3pt shot
+game_date – DATETIME, Date of game
 
-- Shot Zone Basic - General location of shot (ex. Left Corner 3, Mid-range, etc)
+playoffs – INT, Regular season (0) or Playoffs (1)
 
-- Shot Zone Area - Area/Direction of shot (ex. Center, Left Side, etc)
+time_remaining – DATETIME, Seconds left in period
 
-- Shot Zone Range - Grouping of shots based on range (ex. 8-16ft, 16-24ft, etc)
+player_first – TEXT, Shooter's first name
 
-- Shot Distance - Exact distance of shot in feet
-
-- X Location - Location of shot as X coordinate (see below)
-
-- Y Location - Location of shot as Y coordinate (see below)
-
-- Shot Made Flag - 1 (made shot) or 0 (missed shot)
-
-- Game Date - Date of game
-
-- Home Team - Team name of the home team
-
-- Away Team - Team name of the away team
-
-- Season Type - Regular Season or Playoffs
+player_last – TEXT, Shooter's last name
