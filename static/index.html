@@ -365,19 +365,19 @@
       try {
         // Load all four CSV files simultaneously
         const [part1, part2, part3, part4] = await Promise.all([
-          fetch('/static/nba_shot_locs_part1.csv').then(r => {
+          fetch('static/nba_shot_locs_part1.csv').then(r => {
             if (!r.ok) throw new Error(`Failed to load part1 (HTTP ${r.status})`);
             return r.text();
           }),
-          fetch('/static/nba_shot_locs_part2.csv').then(r => {
+          fetch('static/nba_shot_locs_part2.csv').then(r => {
             if (!r.ok) throw new Error(`Failed to load part2 (HTTP ${r.status})`);
             return r.text();
           }),
-          fetch('/static/nba_shot_locs_part3.csv').then(r => {
+          fetch('static/nba_shot_locs_part3.csv').then(r => {
             if (!r.ok) throw new Error(`Failed to load part3 (HTTP ${r.status})`);
             return r.text();
           }),
-          fetch('/static/nba_shot_locs_part4.csv').then(r => {
+          fetch('static/nba_shot_locs_part4.csv').then(r => {
             if (!r.ok) throw new Error(`Failed to load part4 (HTTP ${r.status})`);
             return r.text();
           }),
@@ -531,7 +531,7 @@
 
         container.append('img')
           .attr('class', 'court-img')
-          .attr('src', '/static/nba_court.jpg')
+          .attr('src', 'static/nba_court.jpg')
           .attr('alt', 'NBA Court');
 
         container.append('svg')
