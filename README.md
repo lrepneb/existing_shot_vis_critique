@@ -1,4 +1,4 @@
-# info4310_hw4
+# existing_shot_vis_critique
 
 ## Write Up is located @ writings_and_scriptures_and_whathaveyou/INFO 4310 HW 4 Write Up bdp58.pdf
 
